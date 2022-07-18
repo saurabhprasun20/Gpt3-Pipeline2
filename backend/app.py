@@ -13,6 +13,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
+    print("Get method")
     return 'Hello Juli!'
 
 
@@ -27,4 +28,4 @@ def get_gpt3_answer():
 
 
 if __name__ == '__main__':
-    app.run(port=8000, debug=True)
+    app.run(host='0.0.0.0', debug=True)
