@@ -4,6 +4,7 @@ from NER_POS import get_data
 from fa_chat_close import genResults
 from fa_chat_close import getBertAnswer
 from gpt3 import answer_gpt3
+from outdoor_activity import get_question_type, current_response
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s:[%(filename)s:%(lineno)d] - %(message)s [%(asctime)s]',
@@ -18,6 +19,9 @@ noun_list_final, verb_list_final, verb_noun_rel_dict, verb_token_list, noun_toke
 
 
 def user_input(inp):
+    activity_type = get_question_type(inp[0])
+    if activity_type == 'current time':
+        return current_response()
     answer, score = genResults(inp, getBertAnswer)
 
     if score > 0.65:
