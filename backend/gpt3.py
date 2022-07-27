@@ -92,17 +92,12 @@ def append_interaction_to_chat_log(question, answer):
     return chat_log
 
 
-def answer_gpt3(incoming_msg):
-    global chat_log
-    # print(incoming_msg[0])
-    in_msg = incoming_msg[0]
-    ##Remove answer as list and keep only below line
-    answer = ask(incoming_msg)
-    # answer = []
-    # answer.append("davinci: "+ask(incoming_msg, chat_log))
-    # session['chat_log'] = append_interaction_to_chat_log(incoming_msg, answer,chat_log)
-    # chat_log = append_interaction_to_chat_log(incoming_msg, answer)
-    # print(f'chat log is: {chat_log}')
+def answer_gpt3(incoming_msg, curie_flag=0):
+    # global chat_log
+    if curie_flag == 0:
+        answer = ask(incoming_msg)
+    else:
+        answer = ask_curie(incoming_msg)
     return answer
 
 # answer_returned = answer_gpt3("Where is China?")

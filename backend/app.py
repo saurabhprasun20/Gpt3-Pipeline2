@@ -14,6 +14,8 @@ LOGGER.setLevel(logging.INFO)
 
 app = Flask(__name__)
 
+time_in_ms = 0
+
 
 @app.route('/')
 def hello_world():
@@ -42,7 +44,20 @@ def get_gpt3_answer():
     answer_returned = user_input(inp)
     LOGGER.info(f'Answer returned is {answer_returned}, {type(answer_returned)}')
     if "[" in answer_returned:
-        print('true, this shit is happening dawg')
+        answer_returned = ast.literal_eval(answer_returned.strip())
+        print(f'{answer_returned}')
+        answer_returned = answer_returned[0]
+    return answer_returned, 200
+
+
+@app.route('/api/v1/answer_curie', methods=['POST'])
+def get_gpt3_answer_curie():
+    record = json.loads(request.data)
+    print(record['answer']['question'])
+    inp = [record['answer']['question']]
+    answer_returned = user_input(inp, model_flag=1)
+    LOGGER.info(f'Answer returned is {answer_returned}, {type(answer_returned)}')
+    if "[" in answer_returned:
         answer_returned = ast.literal_eval(answer_returned.strip())
         print(f'{answer_returned}')
         answer_returned = answer_returned[0]
