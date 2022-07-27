@@ -1,9 +1,10 @@
+import ast
 import json
+import logging
 import time
+import psycopg2
 from flask import Flask, request, g as app_ctx
 from In_out_DomainClassification import user_input
-import logging
-import ast
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s:[%(filename)s:%(lineno)d] - %(message)s [%(asctime)s]',
@@ -13,8 +14,10 @@ LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
 
 app = Flask(__name__)
-
 time_in_ms = 0
+input_global = ''
+answer_global = ''
+flag = 0
 
 
 @app.route('/')
@@ -33,25 +36,57 @@ def logging_after(response):
     total_time = time.perf_counter() - app_ctx.start_time
     time_in_ms = int(total_time * 1000)
     LOGGER.info(f'The total execution time for the request is: {time_in_ms} ms {request.method}')
+    LOGGER.info(f'The input is {input_global} and the answer is {answer_global}')
+
+    conn = psycopg2.connect(
+        host='localhost',
+        database='julidata',
+        user='uzh_admin',
+        password='password'
+    )
+
+    cur = conn.cursor()
+    if flag == 0:
+        cur.execute('INSERT INTO davinci_avg (question, answer, response_time)'
+                    'values (%s, %s, %s)',
+                    (input_global[0], answer_global, time_in_ms))
+
+    else:
+        cur.execute('INSERT INTO curie_avg (question, answer, response_time)'
+                    'values (%s, %s, %s)',
+                    (input_global[0], answer_global, time_in_ms))
+
+    conn.commit()
+    cur.close()
+    conn.close()
     return response
 
 
 @app.route('/api/v1/answer', methods=['POST'])
 def get_gpt3_answer():
+    global input_global
+    global answer_global
+    global flag
     record = json.loads(request.data)
     print(record['answer']['question'])
     inp = [record['answer']['question']]
     answer_returned = user_input(inp)
-    LOGGER.info(f'Answer returned is {answer_returned}, {type(answer_returned)}')
+    LOGGER.info(f'Answer returned is {answer_returned}')
     if "[" in answer_returned:
         answer_returned = ast.literal_eval(answer_returned.strip())
         print(f'{answer_returned}')
         answer_returned = answer_returned[0]
+    input_global = inp
+    answer_global = answer_returned
+    flag = 0
     return answer_returned, 200
 
 
 @app.route('/api/v1/answer_curie', methods=['POST'])
 def get_gpt3_answer_curie():
+    global input_global
+    global answer_global
+    global flag
     record = json.loads(request.data)
     print(record['answer']['question'])
     inp = [record['answer']['question']]
@@ -61,6 +96,9 @@ def get_gpt3_answer_curie():
         answer_returned = ast.literal_eval(answer_returned.strip())
         print(f'{answer_returned}')
         answer_returned = answer_returned[0]
+    input_global = inp
+    answer_global = answer_returned
+    flag = 1
     return answer_returned, 200
 
 
