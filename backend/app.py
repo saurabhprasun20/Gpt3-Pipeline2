@@ -2,9 +2,10 @@ import ast
 import json
 import logging
 import time
-import psycopg2
+# import psycopg2
 from flask import Flask, request, g as app_ctx
 from In_out_DomainClassification import user_input
+from flask_pymongo import PyMongo
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s:[%(filename)s:%(lineno)d] - %(message)s [%(asctime)s]',
@@ -14,6 +15,8 @@ LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
 
 app = Flask(__name__)
+mongodb_client = PyMongo(app, uri="mongodb://localhost:27017/juli-chat")
+db = mongodb_client.db
 time_in_ms = 0
 input_global = ''
 answer_global = ''
@@ -38,27 +41,26 @@ def logging_after(response):
     LOGGER.info(f'The total execution time for the request is: {time_in_ms} ms {request.method}')
     LOGGER.info(f'The input is {input_global} and the answer is {answer_global}')
 
-    conn = psycopg2.connect(
-        host='localhost',
-        database='julidata',
-        user='uzh_admin',
-        password='password'
-    )
+    # conn = psycopg2.connect(
+    #     host='localhost',
+    #     database='julidata',
+    #     user='uzh_admin',
+    #     password='password'
+    # )
 
-    cur = conn.cursor()
+    # cur = conn.cursor()
     if flag == 0:
-        cur.execute('INSERT INTO davinci_avg (question, answer, response_time)'
-                    'values (%s, %s, %s)',
-                    (input_global[0], answer_global, time_in_ms))
+        # cur.execute('INSERT INTO davinci_avg (question, answer, response_time)'
+        #             'values (%s, %s, %s)',
+        #             (input_global[0], answer_global, time_in_ms))
+        db.davinci_avg.insert_one({'question': input_global[0], 'answer': answer_global,"time": time_in_ms})
 
     else:
-        cur.execute('INSERT INTO curie_avg (question, answer, response_time)'
-                    'values (%s, %s, %s)',
-                    (input_global[0], answer_global, time_in_ms))
-
-    conn.commit()
-    cur.close()
-    conn.close()
+        # cur.execute('INSERT INTO curie_avg (question, answer, response_time)'
+        #             'values (%s, %s, %s)',
+        #             (input_global[0], answer_global, time_in_ms))
+        db.curie_avg.insert_one({'question': input_global[0], 'answer': answer_global,"time": time_in_ms})
+ 
     return response
 
 
