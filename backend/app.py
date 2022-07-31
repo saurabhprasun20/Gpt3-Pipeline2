@@ -62,8 +62,8 @@ def get_gpt3_answer():
     LOGGER.info(f'Answer returned is {answer_returned}')
     if "[" in answer_returned:
         answer_returned = answer_returned.replace('[', '').replace(']', '')
-        answer_returned = answer_returned[0]
-    print(answer_returned)
+        # answer_returned = answer_returned[0]
+    LOGGER.info(f'Answer after change is {answer_returned}')
     input_global = inp
     answer_global = answer_returned
     flag = 0
