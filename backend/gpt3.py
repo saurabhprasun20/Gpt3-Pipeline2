@@ -98,6 +98,8 @@ def answer_gpt3(incoming_msg, curie_flag=0):
         answer = ask(incoming_msg)
     else:
         answer = ask_curie(incoming_msg)
+    if answer == incoming_msg:
+        answer_gpt3(incoming_msg,curie_flag)
     return answer
 
 # answer_returned = answer_gpt3("Where is China?")
