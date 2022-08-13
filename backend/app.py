@@ -82,7 +82,7 @@ def get_gpt3_answer_curie():
     LOGGER.info(f'Answer returned is {answer_returned}, {type(answer_returned)}')
     if "[" in answer_returned:
         answer_returned = answer_returned.replace('[', '').replace(']', '')
-        answer_returned = answer_returned[0]
+        # answer_returned = answer_returned[0]
     print(answer_returned)
     input_global = inp
     answer_global = answer_returned
