@@ -3,7 +3,8 @@ import os
 from numpy import promote_types
 import openai
 
-openai.api_key = "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"
+
+openai.api_key = "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"
 completion = openai.Completion()
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -98,6 +99,8 @@ def answer_gpt3(incoming_msg, curie_flag=0):
         answer = ask(incoming_msg)
     else:
         answer = ask_curie(incoming_msg)
+    if answer == incoming_msg:
+        answer_gpt3(incoming_msg,curie_flag)
     return answer
 
 # answer_returned = answer_gpt3("Where is China?")
