@@ -14,8 +14,6 @@ model = SentenceTransformer('all-mpnet-base-v2')
 question_embedding = np.load("model_objects/question_emb.npy")
 question_embedding_length = np.load("model_objects/question_len_embedding.npy")
 data = pd.read_csv('fe_chat_full.csv')
-data.drop(columns=['No'], inplace=True)
-data.drop('MVP', axis=1, inplace=True)
 data.fillna('placeholder for answers', inplace=True)
 
 
