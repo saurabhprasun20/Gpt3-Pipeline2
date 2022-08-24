@@ -5,6 +5,7 @@ from fa_chat_close import genResults
 from fa_chat_close import getBertAnswer
 from gpt3 import answer_gpt3
 from outdoor_activity import get_question_type, current_response
+import time
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s:[%(filename)s:%(lineno)d] - %(message)s [%(asctime)s]',
@@ -31,12 +32,16 @@ def user_input(inp, model_flag=0):
                      f'dataset is {score}')
         LOGGER.debug(f'The closest matched question to the user query in the in-domain '
                      f'dataset is `{answer}`')
-        return answer
+        return answer, 'Response not from GPT-3'
     else:
         LOGGER.info(f'The user query score for the current question is below the threshold of 0.65, so returning answer'
                     f' from the out-domain model for this query')
         if model_flag == 0:
+            start_time = time.time()
             answer_returned = answer_gpt3(inp)
+            execution_time = time.time() - start_time
         else:
+            start_time = time.time()
             answer_returned = answer_gpt3(inp, curie_flag=1)
-        return answer_returned
+            execution_time = time.time() - start_time
+        return answer_returned, execution_time

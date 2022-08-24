@@ -21,6 +21,7 @@ time_in_ms = 0
 input_global = ''
 answer_global = ''
 flag = 0
+gpt3_time = 'Response not from GPT-3'
 
 
 @app.route('/')
@@ -42,10 +43,12 @@ def logging_after(response):
     LOGGER.info(f'The input is {input_global} and the answer is {answer_global}')
 
     if flag == 0:
-        db.davinci_avg.insert_one({'question': input_global[0], 'answer': answer_global, "time": time_in_ms})
+        db.davinci_avg.insert_one({'question': input_global[0], 'answer': answer_global, 'time': time_in_ms,
+                                   'gpt3-time': gpt3_time*1000})
 
     else:
-        db.curie_avg.insert_one({'question': input_global[0], 'answer': answer_global, "time": time_in_ms})
+        db.curie_avg.insert_one({'question': input_global[0], 'answer': answer_global, 'time': time_in_ms,
+                                'gpt3-time': gpt3_time*1000})
 
     return response
 
@@ -55,14 +58,15 @@ def get_gpt3_answer():
     global input_global
     global answer_global
     global flag
+    global gpt3_time
     record = json.loads(request.data)
     print(record['answer']['question'])
     inp = [record['answer']['question']]
-    answer_returned = user_input(inp)
+    answer_returned, gpt3_time = user_input(inp)
     LOGGER.info(f'Answer returned is {answer_returned}')
+    LOGGER.info(f'The time for GPT-3 is {gpt3_time}')
     if "[" in answer_returned:
         answer_returned = answer_returned.replace('[', '').replace(']', '')
-        # answer_returned = answer_returned[0]
     LOGGER.info(f'Answer after change is {answer_returned}')
     input_global = inp
     answer_global = answer_returned
